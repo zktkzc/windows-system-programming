@@ -4,6 +4,7 @@
 
 #pragma once
 
+extern CString g_DirFilePath;
 
 // C文件浏览器Dlg 对话框
 class C文件浏览器Dlg : public CDialogEx
@@ -39,4 +40,9 @@ public:
 	void FindDirFile(WCHAR* wcDirPath);
 	afx_msg void OnRclickList1(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void On32771();
+	afx_msg void On32772();
+	afx_msg void On32773();
+	afx_msg void On32774();
+	afx_msg void On32775();
+	afx_msg void On32776();
 };

@@ -7,6 +7,8 @@
 #include "文件浏览器.h"
 #include "文件浏览器Dlg.h"
 #include "afxdialogex.h"
+#include "CCreateFile.h"
+#include "CWriteFile.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,6 +16,9 @@
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
+WCHAR wcPath[MAX_PATH] = { 0 };
+CString g_DirFilePath;
 
 class CAboutDlg : public CDialogEx
 {
@@ -71,6 +76,11 @@ BEGIN_MESSAGE_MAP(C文件浏览器Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &C文件浏览器Dlg::OnBnClickedButton1)
 	ON_NOTIFY(NM_RCLICK, IDC_LIST1, &C文件浏览器Dlg::OnRclickList1)
 	ON_COMMAND(ID_32771, &C文件浏览器Dlg::On32771)
+	ON_COMMAND(ID_32772, &C文件浏览器Dlg::On32772)
+	ON_COMMAND(ID_32773, &C文件浏览器Dlg::On32773)
+	ON_COMMAND(ID_32774, &C文件浏览器Dlg::On32774)
+	ON_COMMAND(ID_32775, &C文件浏览器Dlg::On32775)
+	ON_COMMAND(ID_32776, &C文件浏览器Dlg::On32776)
 END_MESSAGE_MAP()
 
 
@@ -168,7 +178,6 @@ HCURSOR C文件浏览器Dlg::OnQueryDragIcon()
 void C文件浏览器Dlg::OnBnClickedButton1()
 {
 	UpdateData(TRUE);
-	WCHAR wcPath[MAX_PATH] = { 0 };
 	memset(wcPath, 0, MAX_PATH);
 	BROWSEINFO bi;
 	bi.hwndOwner = m_hWnd;
@@ -267,5 +276,89 @@ void C文件浏览器Dlg::On32771()
 	wcscpy(wcDirPath, strW);
 	m_FileList.DeleteAllItems();
 	FindDirFile(wcDirPath);
+	UpdateData(FALSE);
+}
+
+// 刷新列表
+void C文件浏览器Dlg::On32772()
+{
+	// TODO: 在此添加命令处理程序代码
+	m_FileList.DeleteAllItems();
+	FindDirFile(wcPath);
+}
+
+// 删除文件
+void C文件浏览器Dlg::On32773()
+{
+	// TODO: 在此添加命令处理程序代码
+	UpdateData(TRUE);
+	CString csDirType = m_FileList.GetItemText(dwIndexFlag, 1);
+	CString csFilePath = m_FileList.GetItemText(dwIndexFlag, 2);
+	if (csDirType == L"文件")
+	{
+		BOOL bRet = DeleteFile(csFilePath);
+		if (bRet)
+		{
+			m_FileList.DeleteAllItems();
+			FindDirFile(wcPath);
+		}
+		else
+		{
+			MessageBox(L"删除失败！", L"错误", MB_OK);
+		}
+		return;
+	}
+	else
+	{
+		MessageBox(L"无法删除目录！", L"提示", MB_OK);
+		return;
+	}
+	UpdateData(FALSE);
+}
+
+// 文本模式打开文件
+void C文件浏览器Dlg::On32774()
+{
+	// TODO: 在此添加命令处理程序代码
+	UpdateData(TRUE);
+	CString csDirType = m_FileList.GetItemText(dwIndexFlag, 1);
+	if (csDirType == L"文件")
+	{
+		CString csFilePath = m_FileList.GetItemText(dwIndexFlag, 2);
+		CString csTemp = L"notepad.exe ";
+		csFilePath = csTemp + csFilePath;
+		USES_CONVERSION;
+		char* pPath = T2A(csFilePath.GetBuffer(0));
+		WinExec(pPath, SW_SHOWNORMAL);
+	}
+	else
+	{
+		MessageBox(L"无法打开目录！", L"提示", MB_OK);
+		return;
+	}
+	UpdateData(FALSE);
+}
+
+// 创建文件
+void C文件浏览器Dlg::On32775()
+{
+	// TODO: 在此添加命令处理程序代码
+	UpdateData(TRUE);
+	g_DirFilePath = m_DirPath;
+	CCreateFile m_CDlg;
+	m_CDlg.DoModal();
+	FindDirFile(wcPath);
+	UpdateData(FALSE);
+}
+
+// 写入文件
+void C文件浏览器Dlg::On32776()
+{
+	// TODO: 在此添加命令处理程序代码
+	UpdateData(TRUE);
+	g_DirFilePath = m_FileList.GetItemText(dwIndexFlag, 2);
+	CWriteFile m_WDlg;
+	m_WDlg.DoModal();
+	FindDirFile(wcPath);
 	UpdateData(FALSE);
 }
